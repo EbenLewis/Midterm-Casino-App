@@ -15,7 +15,7 @@ class RouletteGame:
         }
 
     def display_bets(self):
-        print("\nROULETTE BETS:")
+        print("\nRoulette Bets:")
         for key, value in self.bet_types.items():
             print(f"{key}. {value['name']} (Pays {value['payout']}:1)")
 

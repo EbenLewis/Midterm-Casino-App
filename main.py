@@ -57,14 +57,14 @@ def login():
         <label for = "username">Enter your username</label>
         <input type="text" id="username" username="username"><br><br>
 
-        <label for = "password">Enter your passowrd:</label>
+        <label for = "password">Enter your password:</label>
         <input type="text" id="password" password="password"><br><br>
     '''
     return html
 
 #Blackjack route
 @app.route("/blackjack")
-def html():
+def blackjack():
     html = '''
     <p>There will be blackjack here eventually!<p>
     '''
@@ -72,19 +72,19 @@ def html():
 
 #Roulette route
 @app.route("/roulette")
-def html():
-    htmlr = '''
-    <p>There will be broulette here eventually!<p>
+def roulette():
+    html = '''
+    <p>There will be roulette here eventually!<p>
     '''
-    return htmlr
+    return html
 
 #Sports betting route
 @app.route("/sportsbetting")
-def html():
-    htmls = '''
+def sportsbetting():
+    html = '''
     <p>There will be sports betting here eventually!<p>
     '''
-    return htmls
+    return html
 
 if __name__ == "__main__":
     app.run()

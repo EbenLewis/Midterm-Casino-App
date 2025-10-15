@@ -7,7 +7,7 @@ CARD_VALUES = {
 }
 
 def create_deck():
-    """Creates a standard 52-card deck."""
+    #Creates a standard 52-card deck.
     suits = ['Hearts', 'Diamonds', 'Clubs', 'Spades']
     ranks = list(CARD_VALUES.keys())
     deck = [{'rank': rank, 'suit': suit} for suit in suits for rank in ranks]
@@ -15,11 +15,11 @@ def create_deck():
     return deck
 
 def deal_card(deck):
-    """Deals a single card from the deck."""
+    #Deals a single card from the deck.
     return deck.pop()
 
 def calculate_hand_value(hand):
-    """Calculates the value of a hand, handling Aces."""
+    #Calculates the value of a hand, handling Aces
     value = 0
     num_aces = 0
     for card in hand:
@@ -34,7 +34,7 @@ def calculate_hand_value(hand):
     return value
 
 def display_hand(player_name, hand, hide_one=False):
-    """Displays a player's hand."""
+    #Displays the player's or dealer's hand.
     print(f"\n{player_name}'s hand:")
     if hide_one:
         print(f"  {hand[0]['rank']} of {hand[0]['suit']}")

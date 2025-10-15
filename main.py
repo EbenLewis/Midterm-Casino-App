@@ -23,7 +23,6 @@ def view_account():
     html = '''
     <h1> This is your user data <h1>
     '''
-
     return html
 
 #create account page
@@ -33,7 +32,6 @@ def create_account():
     if request.method == "POST":
         username = request.form["username"]
         password = request.form["password"]
-
     #html for the page
     html = '''
     <h1> Create your account <h1>

@@ -30,6 +30,10 @@ class UserManager:
             "password": hashed_password.decode("utf-8"),
             "userid": len(users) + 1,
             "money_total": initial_balance,
+            "money_won": 0.0,
+            "money_lost": 0.0,
+            "total_deposited": initial_balance,
+            "total_withdrawn": 0.0,
         }
 
         users.append(new_user)
@@ -56,3 +60,48 @@ class UserManager:
                 return user
         return {}
 
+
+class User:
+    def __init__(self, username: str):
+        self.username = username
+        self.data = UserManager.view_data(username)
+
+    def add_funds(self, amount: float):
+        users = load_users()
+
+        for user in users:
+            if user["username"] == self.username:
+                user["money_total"] += amount
+                save_users(users)
+                self.data = user
+                return
+
+    def update_money_won(self, amount: float):
+        users = load_users()
+
+        for user in users:
+            if user["username"] == self.username:
+                user["money_total"] += amount
+                save_users(users)
+                self.data = user
+                return
+
+    def update_money_lost(self, amount: float):
+        users = load_users()
+
+        for user in users:
+            if user["username"] == self.username:
+                user["money_total"] -= amount
+                save_users(users)
+                self.data = user
+                return
+
+    def withdraw_funds(self, amount: float):
+        users = load_users()
+
+        for user in users:
+            if user["username"] == self.username:
+                user["money_total"] -= amount
+                save_users(users)
+                self.data = user
+                return

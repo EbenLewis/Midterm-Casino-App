@@ -96,7 +96,7 @@ class User:
                 self.data = user
                 return
 
-    def withdraw_funds(self, amount: float):
+    def remove_funds(self, amount: float):
         users = load_users()
 
         for user in users:

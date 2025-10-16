@@ -1,18 +1,30 @@
-from flask import Flask, request, redirect, url_for
-from user_Utils import UserManager
+from flask import Flask, request, redirect, url_for, session
+from user_Utils import UserManager, User
 from blackjackGame import play_blackjack
 from rouletteGame import play_roulette, RouletteGame
 
 app = Flask(__name__)
+app.secret_key = "not_very_secret_key" #hash this later
 #landing page 
-#TODO: add buttons for navigation
+#WORKS
 @app.route("/", methods=["GET","POST"])
 def home():
     html = '''
-    <h1> Welcome to the casino <h1>
+    <h1> Welcome to the casino </h1>
     <p> let's go gambling! <p>
     <button type="button" onclick="window.location.href='/login'">Login</button>
     <button type="button" onclick="window.location.href='/createaccount'">Create Account</button>
+    <button type="button" onclick="window.location.href='/userdata'">View user data</button>
+    '''
+    return html
+
+#home page after login for user
+#WORKS
+@app.route("/userhome")
+def user_home():
+    html = '''
+    <h1> Welcome back, '''+ session.get("username") + '''</h1>
+    <p> let's go gambling! <p>
     <button type="button" onclick="window.location.href='/userdata'">View user data</button>
     <button type="button" onclick="window.location.href='/blackjack'">Play Blackjack</button>
     <button type="button" onclick="window.location.href='/roulette'">Play Roulette</button>
@@ -21,16 +33,29 @@ def home():
     return html
 
 #display user data upon request
-#TODO: display info for a user from userdata.json
+#WORKS
 @app.route("/userdata")
 def view_account():
-    html = '''
-    <h1> This is your user data <h1>
-    '''
-    return html
+    if session.get('logged_in') != True:
+        return redirect(url_for("home"))
+    else: 
+        userdata = UserManager.view_data(session.get('username'))
+        html = '''
+        <h1> This is your user data: </h1>
+        <p> Username: ''' + userdata['username'] + '''</p>
+        <p> UserID: ''' + str(userdata['userid']) + '''</p>
+        <p> Total Money: $''' + str(userdata['money_total']) + '''</p>
+        <p> Total Deposited: $''' + str(userdata['total_deposited']) + '''</p>
+        <p> Total Withdrawn: $''' + str(userdata['total_withdrawn']) + '''</p>
+        <p> Money Won: $''' + str(userdata['money_won']) + '''</p>
+        <p> Money Lost: $''' + str(userdata['money_lost']) + '''</p>
+        <button type="button" onclick="window.location.href='/changefunds'">Change Funds</button>
+        <button type="button" onclick="window.location.href='/userhome'">Return to home</button>
+        '''
+        return html
 
 #create account page
-#TODO: save to  backend
+#WORKS
 @app.route("/createaccount", methods=["GET", "POST"])
 def create_account():
     html = '''
@@ -61,47 +86,77 @@ def create_account():
 
 
 #login route
-#TODO: check for users from backend
+#WORKS
 @app.route("/login", methods=["GET","POST"])
 def login():
 
     html = '''
-    <form> 
+    <form action="/login" method="POST"> 
         <label for = "username">Enter your username</label>
         <input type="text" id="username" name="username"><br><br>
 
         <label for = "password">Enter your password:</label>
         <input type="text" id="password" name="password"><br><br>
 
-        <input type="submit" onclick="window.location.href='/' value="Submit">
+        <input type="submit" value="Submit">
     </form>
     '''
     if request.method == "POST":
         username = request.form["username"]
         password = request.form["password"]
-        UserManager.login(username, password)
-        if UserManager.login(username, password):
-            return f"<p>Welcome back {username}!<p>", redirect(url_for("home"))
+        success = UserManager.login(username, password)
+        #uses session variables for each user to keep them seperate
+        if success:
+            session['username'] = username
+            session['logged_in'] = True
+            return redirect(url_for("user_home"))
         else: 
             return redirect(url_for("home"))
 
     return html
 
-#Blackjack route
-@app.route("/blackjack")
+#change funds route
+#WORKS
+@app.route("/changefunds", methods=["GET","POST"])
+def change_funds():
+    if session.get('logged_in') != True:
+        return redirect(url_for("home"))
+    
+    html = '''
+    <form action="/changefunds" method="POST">
+        <label for="amount">Enter amount to deposit/remove (use negative numbers to remove):</label>
+        <input type="number" id="amount" name="amount"><br><br>
+        <input type="submit" value="Submit">
+        </form>'''
+    if request.method == "POST":
+        amount = float(request.form["amount"])
+        user = User(session.get("username"))
+        if amount > 0:
+            user.add_funds(amount)
+        else:
+            user.withdraw_funds(-amount)
+        return redirect(url_for("view_account"))
+    return html
+
+#Blackjack routes
+#Doesn't work, when user presses play blackjack, game runs in terminal not webpage
+@app.route("/blackjack", methods=["GET","POST"])
 def blackjack():
     html = '''
     <button type="button" onclick="window.location.href='/blackjack/active'">Play blackjack?</button>
-    <button type="button" onclick="window.location.href='/'">Return to home</button>
+    <button type="button" onclick="window.location.href='/userhome'">Return to home</button>
     '''
     return html
 
-@app.route("/blackjack/active")
-def game_running():
+#route to play the actual game in
+@app.route("/blackjack/active", methods=["GET","POST"])
+def blackjack_running():
     html = '''
-    <button type="button" >bet</button>
-    <button type="button" >hit</button>
-    <button type="button" >stand</button>
+    <form action="/blackjack/active" method="POST">
+        <label for="bet">Place your bet:</label>
+        <input type="number" id="bet" name="bet">
+        <button type="submit">Submit Bet</button>
+    </form>
     '''
     if request.method == "POST":
         bet = request.form["bet"]
@@ -110,37 +165,40 @@ def game_running():
     play_blackjack()
     return html 
         
-#Roulette route
-@app.route("/roulette")
+#Roulette routes
+#Doesn't currently work
+@app.route("/roulette", methods=["GET","POST"])
 def roulette():
     html = '''
     <p> Welcome to roulette<p>
-    <button type="button" onclick="window.location.href='/blackjack/active'">Play roulette?</button>
-    <button type="button" onclick="window.location.href='/'">Return to home</button>
+    <button type="button" onclick="window.location.href='/roulette/active'">Play roulette?</button>
+    <button type="button" onclick="window.location.href='/userhome'">Return to home</button>
     '''
 
     return html
 
-@app.route("/roulette/active")
-def game_running():
+@app.route("/roulette/active", methods=["GET","POST"])
+def roulette_running():
     html = '''
     <form> 
         <label for = "color">Pick a color</label>
         <input type="text" id="color" name="color"><br><br>
 
-        <label for = "number">Pick a number</label>
+        <label for = "number">Pick a number, </label>
         <input type="number" id="number" name="number"><br><br>
+    
     </form>
     <button type="button" >bet</button>
     '''
-    if request.method == "POST":
-        number = request.form["number"]
-        color = request.form["color"]
+    number = int(request.form["number"])
+    color = request.form["color"]
 
-    play_roulette()
+    play_roulette(session.get("username"), UserManager.view_data(session.get("username")))
+    
     return html 
 
 #Sports betting route
+#Slated for a different sprint, placeholder endpoint
 @app.route("/sportsbetting")
 def sportsbetting():
     html = '''

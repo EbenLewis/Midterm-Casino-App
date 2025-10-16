@@ -1,0 +1,22 @@
+[
+    {
+        "username": "Demo user",
+        "password": "Demo123",
+        "userid": 1,
+        "money_total": 50.0,
+        "money_won": 0.0,
+        "money_lost": 0.0,
+        "total_deposited": 50.0,
+        "total_withdrawn": 0.0
+    },
+    {
+        "username": "EbenLewis",
+        "password": "$2b$12$zvzx/wAfK2x99ujhRtJ.NOIKEBchlxIz4/JVdZG8hi2asmEwskDQO",
+        "userid": 2,
+        "money_total": 50900.0,
+        "money_won": 0.0,
+        "money_lost": 0.0,
+        "total_deposited": 900.0,
+        "total_withdrawn": 0.0
+    }
+]

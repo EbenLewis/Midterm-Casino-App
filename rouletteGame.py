@@ -44,42 +44,35 @@ class RouletteGame:
             return False, None, "Enter 0-36."
         except ValueError:
             return False, None, "Enter a number."
-    def display_bets(self):
-        #no printing, just return the bet values and anything else it needs the user to see
-        print("\nRoulette Bets:")
+
+    def get_bet_info(self):
+        bet_info = []
         for key, value in self.bet_types.items():
-            print(f"{key}. {value['name']} (Pays {value['payout']}:1)")
+            bet_info.append(f"{key}. {value['name']} (Pays {value['payout']}:1)")
+        return bet_info
 
-    def get_bet_choice(self):
-        #once again needs to output data with a return function and take inputs in the parameters for the function (e.g. get_bet_choice(self, bet_number, bet_amount))
-        while True:
-            choice = input("\nChoose bet (1-7) or 0 to quit: ").strip()
-            if choice == '0':
-                return None
-            if choice in self.bet_types:
-                return choice
-            print("Invalid choice.")
-        
+    def process_bet_choice(self, choice_input):
+        choice = choice_input.strip()
+        if choice == '0':
+            return None, "quit"
+        if choice in self.bet_types:
+            return choice, ""
+        return None, "Invalid choice."
 
-    def get_bet_details(self, bet_type):
-        #better but still needs to not use print or input within the function, just needs to process input from outside the function in main
-        if bet_type == '1':
-            while True:
-                try:
-                    number = int(input("Enter number (0-36): "))
-                    if 0 <= number <= 36:
-                        return {'number': number}
-                    print("Enter 0-36.")
-                except ValueError:
-                    print("Enter a number.")
-        return {}
+    def process_straight_bet(self, number_input):
+        try:
+            number = int(number_input)
+            if 0 <= number <= 36:
+                return {'number': number}, ""
+            return {}, "Enter 0-36."
+        except ValueError:
+            return {}, "Enter a number."
 
-    #this is good but check anyway
     def spin_wheel(self):
         winning_number = random.choice(self.wheel_numbers)
         color = "Red" if winning_number in self.red_numbers else "Black" if winning_number != 0 else "Green"
         return winning_number, color
-    #good 
+
     def check_win(self, bet_type, bet_details, winning_number, winning_color):
         if bet_type == '1':
             return bet_details.get('number') == winning_number
@@ -96,61 +89,61 @@ class RouletteGame:
         elif bet_type == '7':
             return 19 <= winning_number <= 36
         return False
-    #good
+
     def calculate_payout(self, bet_type, bet_amount, did_win):
         if not did_win:
             return -bet_amount
         payout_ratio = self.bet_types[bet_type]['payout']
         return bet_amount * payout_ratio
 
-    #good logic but needs the I/O and return fixed to work with main
-    def validate_bet(self, player_balance):
-        while True:
-            try:
-                bet_input = input(f"Bet (1-{player_balance}) or 0 to quit: $").strip()
-                bet_amount = float(bet_input)
-                if bet_amount == 0:
-                    return None
-                elif bet_amount < 0:
-                    print("Positive bets only.")
-                elif bet_amount > player_balance:
-                    print("Too much!")
-                elif bet_amount < 1:
-                    print("Min $1.")
-                else:
-                    return bet_amount
-                    
-            except ValueError:
-                print("Enter a number.")
-    #also good, just needs to work with main
-    def play_round(self, player_balance):
-        print(f"\nBalance: ${player_balance}")
+    def process_bet_amount(self, bet_input, player_balance):
+        try:
+            bet_amount = float(bet_input)
+            is_valid, message = self.validate_bet_amount(bet_amount, player_balance)
+            if is_valid:
+                return bet_amount, ""
+            elif message == "quit":
+                return None, "quit"
+            else:
+                return None, message
+        except ValueError:
+            return None, "Enter a number."
+
+    def play_round(self, player_balance, bet_amount_input, bet_choice_input, straight_bet_input=None):
+        self.current_balance = player_balance
         
-        bet_amount = self.validate_bet(player_balance)
-        if bet_amount is None:
-            return player_balance
+        bet_amount, error = self.process_bet_amount(bet_amount_input, player_balance)
+        if error:
+            return {'error': error, 'game_over': error == "quit"}
         
-        self.display_bets()
-        bet_type = self.get_bet_choice()
-        if bet_type is None:
-            return player_balance
+        bet_type, error = self.process_bet_choice(bet_choice_input)
+        if error:
+            return {'error': error, 'game_over': error == "quit"}
         
-        bet_details = self.get_bet_details(bet_type)
+        bet_details = {}
+        if bet_type == '1':
+            if straight_bet_input is None:
+                return {'error': "Straight bet requires a number", 'game_over': False}
+            bet_details, error = self.process_straight_bet(straight_bet_input)
+            if error:
+                return {'error': error, 'game_over': False}
+        
         winning_number, winning_color = self.spin_wheel()
-        
         did_win = self.check_win(bet_type, bet_details, winning_number, winning_color)
         payout = self.calculate_payout(bet_type, bet_amount, did_win)
         new_balance = player_balance + payout
         
-        if did_win:
-            print(f"Win: ${payout}!")
-        else:
-            print(f"Lose: ${bet_amount}!")
-        
-        print(f"New Balance: ${new_balance}")
-        return new_balance
-#no longer needed once integrated with main
-'''
+        return {
+            'winning_number': winning_number,
+            'winning_color': winning_color,
+            'bet_type': self.bet_types[bet_type]['name'],
+            'bet_amount': bet_amount,
+            'did_win': did_win,
+            'payout': payout,
+            'new_balance': new_balance,
+            'game_over': False
+        }
+
 def play_roulette(username, user_data):
     game = RouletteGame()
     current_balance = user_data['balance']
@@ -162,8 +155,3 @@ def play_roulette(username, user_data):
     }
     
     return game_data
-
-    user_data['balance'] = current_balance
-    return user_data
-'''
-    

@@ -15,7 +15,7 @@ def save_users(users):
 class UserManager:
     @classmethod
     def new_user(cls, username: str, password: str, initial_balance: float) -> dict:
-        users = load_users()
+        users = load_users() 
 
         # check for duplicate username
         for user in users:
@@ -96,7 +96,7 @@ class User:
                 self.data = user
                 return
 
-    def withdraw_funds(self, amount: float):
+    def remove_funds(self, amount: float):
         users = load_users()
 
         for user in users:

@@ -117,6 +117,7 @@ class RouletteGame:
         print(f"New Balance: ${new_balance}")
         return new_balance
 
+'''
 def play_roulette(username, user_data):
     game = RouletteGame()
     
@@ -133,7 +134,5 @@ def play_roulette(username, user_data):
     
     user_data['balance'] = current_balance
     return user_data
-
-if __name__ == "__main__":
-    test_user = {'balance': 100, 'money_won': 0, 'money_lost': 0}
-    play_roulette("test_player", test_user)
+'''
+    

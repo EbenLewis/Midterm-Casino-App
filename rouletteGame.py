@@ -14,6 +14,36 @@ class RouletteGame:
             '7': {'name': '19-36', 'payout': 1}
         }
 
+    def get_bet_types(self):
+        return self.bet_types
+
+    def validate_bet_amount(self, bet_amount, player_balance):
+        if bet_amount == 0:
+            return False, "quit"
+        elif bet_amount < 0:
+            return False, "Positive bets only."
+        elif bet_amount > player_balance:
+            return False, "Too much!"
+        elif bet_amount < 1:
+            return False, "Min $1."
+        else:
+            return True, ""
+
+    def validate_bet_choice(self, choice):
+        if choice == '0':
+            return False, "quit"
+        if choice in self.bet_types:
+            return True, ""
+        return False, "Invalid choice."
+
+    def validate_straight_bet(self, number_input):
+        try:
+            number = int(number_input)
+            if 0 <= number <= 36:
+                return True, number, ""
+            return False, None, "Enter 0-36."
+        except ValueError:
+            return False, None, "Enter a number."
     def display_bets(self):
         #no printing, just return the bet values and anything else it needs the user to see
         print("\nRoulette Bets:")
@@ -48,7 +78,6 @@ class RouletteGame:
     def spin_wheel(self):
         winning_number = random.choice(self.wheel_numbers)
         color = "Red" if winning_number in self.red_numbers else "Black" if winning_number != 0 else "Green"
-        print(f"Ball: {winning_number} {color}")
         return winning_number, color
     #good 
     def check_win(self, bet_type, bet_details, winning_number, winning_color):
@@ -73,6 +102,7 @@ class RouletteGame:
             return -bet_amount
         payout_ratio = self.bet_types[bet_type]['payout']
         return bet_amount * payout_ratio
+
     #good logic but needs the I/O and return fixed to work with main
     def validate_bet(self, player_balance):
         while True:
@@ -119,22 +149,20 @@ class RouletteGame:
         
         print(f"New Balance: ${new_balance}")
         return new_balance
-#no longe needed once integrated with main
+#no longer needed once integrated with main
 '''
 def play_roulette(username, user_data):
     game = RouletteGame()
-    
-    print("\n ROULETTE!!")
-    
     current_balance = user_data['balance']
     
-    while current_balance > 0:
-        current_balance = game.play_round(current_balance)
-        
-        play_again = input("\nAgain? (y/n): ").lower().strip()
-        if play_again != 'y':
-            break
+    game_data = {
+        'balance': current_balance,
+        'game_over': False,
+        'message': "Welcome to Roulette!"
+    }
     
+    return game_data
+
     user_data['balance'] = current_balance
     return user_data
 '''

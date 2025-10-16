@@ -4,7 +4,7 @@ CARD_VALUES = {
     '2': 2, '3': 3, '4': 4, '5': 5, '6': 6, '7': 7, '8': 8, '9': 9, '10': 10,
     'J': 10, 'Q': 10, 'K': 10, 'A': 11  # Ace initially 11, can be 1
 }
-
+#this is good logic! doesn't need change
 def create_deck():
     #Creates a standard 52-card deck.
     suits = ['Hearts', 'Diamonds', 'Clubs', 'Spades']
@@ -43,6 +43,7 @@ def display_hand(player_name, hand, hide_one=False):
             print(f"  {card['rank']} of {card['suit']}")
     print(f"Total value: {calculate_hand_value(hand)}")
 
+#logic is good, just needs to be integratable with main (just logic, takes input inside the function parameters and returns output)
 def play_blackjack():
     """Main function to play a game of Blackjack."""
     print("Welcome to Blackjack!")

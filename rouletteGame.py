@@ -40,6 +40,7 @@ class RouletteGame:
                     print("Enter a number.")
         return {}
 
+
     def spin_wheel(self):
         winning_number = random.choice(self.wheel_numbers)
         color = "Red" if winning_number in self.red_numbers else "Black" if winning_number != 0 else "Green"

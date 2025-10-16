@@ -1,26 +1,12 @@
 import random
-
 # Card values
 CARD_VALUES = {
     '2': 2, '3': 3, '4': 4, '5': 5, '6': 6, '7': 7, '8': 8, '9': 9, '10': 10,
     'J': 10, 'Q': 10, 'K': 10, 'A': 11  # Ace initially 11, can be 1
 }
 
-"""Gameplay overview
------------------
-1) A shuffled deck is created; you and the dealer each have two cards at start.
-2) Player turn: choose to Hit or Stand until you reach 21 or bust (>21).
-3) Dealer turn: once the player stands (and hasn't busted), the dealer draws until
-   the dealer's hand value is at least 17 (standard house rule).
-4) Outcomes: blackjack (21 on initial deal), player win/lose, dealer bust, or push (tie).
-"""
-
 def create_deck():
-    """Creates a standard 52-card deck.
-     Returns
-    -------
-    list[Card]
-        A shuffled list of card dicts like {'rank': 'K', 'suit': 'Hearts'}."""
+    #Creates a standard 52-card deck.
     suits = ['Hearts', 'Diamonds', 'Clubs', 'Spades']
     ranks = list(CARD_VALUES.keys())
     deck = [{'rank': rank, 'suit': suit} for suit in suits for rank in ranks]
@@ -28,37 +14,11 @@ def create_deck():
     return deck
 
 def deal_card(deck):
-    """Deals a single card from the deck.
-     Parameters
-    ----------
-    deck : list[Card]
-        The deck from which to deal.
-
-    Returns
-    -------
-    Card
-        The dealt card.
-
-    Raises
-    ------
-    IndexError
-        If the deck is empty."""
+    #Deals a single card from the deck.
     return deck.pop()
 
 def calculate_hand_value(hand):
-    """Calculates the value of a hand, handling Aces.
-     Aces count as 11 by default and are reduced to 1 as needed to keep the hand
-    at 21 or below.
-
-    Parameters
-    ----------
-    hand : list[Card]
-        The player's or dealer's hand.
-
-    Returns
-    -------
-    int
-        The integer hand value according to Blackjack rules."""
+    #Calculates the value of a hand, handling Aces
     value = 0
     num_aces = 0
     for card in hand:
@@ -73,16 +33,7 @@ def calculate_hand_value(hand):
     return value
 
 def display_hand(player_name, hand, hide_one=False):
-    """Displays a player's hand.
-    
-    Parameters
-    ----------
-    player_name : str
-        Display name, e.g., "Your" or "Dealer's".
-    hand : list[Card]
-        The hand to display.
-    hide_one : bool, optional
-        If True, shows only the first card and hides the second (dealer's initial state)."""
+    #Displays the player's or dealer's hand.
     print(f"\n{player_name}'s hand:")
     if hide_one:
         print(f"  {hand[0]['rank']} of {hand[0]['suit']}")
@@ -93,14 +44,7 @@ def display_hand(player_name, hand, hide_one=False):
     print(f"Total value: {calculate_hand_value(hand)}")
 
 def play_blackjack():
-    """Main function to play a game of Blackjack.
-    Flow:
-    -----
-    1) Create and shuffle a deck; deal two cards to player and dealer.
-    2) Player turn: prompt Hit/Stand until blackjack (21), stand, or bust.
-    3) Dealer turn: draw until total >= 17 (if player hasn't busted).
-    4) Compare totals to determine the outcome, then prompt to play again.
-    """
+    """Main function to play a game of Blackjack."""
     print("Welcome to Blackjack!")
     deck = create_deck()
 

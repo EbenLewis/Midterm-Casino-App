@@ -14,36 +14,40 @@ class RouletteGame:
             '7': {'name': '19-36', 'payout': 1}
         }
 
-    def display_bets(self):
-        print("\nRoulette Bets:")
-        for key, value in self.bet_types.items():
-            print(f"{key}. {value['name']} (Pays {value['payout']}:1)")
+    def get_bet_types(self):
+        return self.bet_types
 
-    def get_bet_choice(self):
-        while True:
-            choice = input("\nChoose bet (1-7) or 0 to quit: ").strip()
-            if choice == '0':
-                return None
-            if choice in self.bet_types:
-                return choice
-            print("Invalid choice.")
+    def validate_bet_amount(self, bet_amount, player_balance):
+        if bet_amount == 0:
+            return False, "quit"
+        elif bet_amount < 0:
+            return False, "Positive bets only."
+        elif bet_amount > player_balance:
+            return False, "Too much!"
+        elif bet_amount < 1:
+            return False, "Min $1."
+        else:
+            return True, ""
 
-    def get_bet_details(self, bet_type):
-        if bet_type == '1':
-            while True:
-                try:
-                    number = int(input("Enter number (0-36): "))
-                    if 0 <= number <= 36:
-                        return {'number': number}
-                    print("Enter 0-36.")
-                except ValueError:
-                    print("Enter a number.")
-        return {}
+    def validate_bet_choice(self, choice):
+        if choice == '0':
+            return False, "quit"
+        if choice in self.bet_types:
+            return True, ""
+        return False, "Invalid choice."
+
+    def validate_straight_bet(self, number_input):
+        try:
+            number = int(number_input)
+            if 0 <= number <= 36:
+                return True, number, ""
+            return False, None, "Enter 0-36."
+        except ValueError:
+            return False, None, "Enter a number."
 
     def spin_wheel(self):
         winning_number = random.choice(self.wheel_numbers)
         color = "Red" if winning_number in self.red_numbers else "Black" if winning_number != 0 else "Green"
-        print(f"Ball: {winning_number} {color}")
         return winning_number, color
 
     def check_win(self, bet_type, bet_details, winning_number, winning_color):
@@ -69,70 +73,15 @@ class RouletteGame:
         payout_ratio = self.bet_types[bet_type]['payout']
         return bet_amount * payout_ratio
 
-    def validate_bet(self, player_balance):
-        while True:
-            try:
-                bet_input = input(f"Bet (1-{player_balance}) or 0 to quit: $").strip()
-                bet_amount = float(bet_input)
-                
-                if bet_amount == 0:
-                    return None
-                elif bet_amount < 0:
-                    print("Positive bets only.")
-                elif bet_amount > player_balance:
-                    print("Too much!")
-                elif bet_amount < 1:
-                    print("Min $1.")
-                else:
-                    return bet_amount
-                    
-            except ValueError:
-                print("Enter a number.")
-
-    def play_round(self, player_balance):
-        print(f"\nBalance: ${player_balance}")
-        
-        bet_amount = self.validate_bet(player_balance)
-        if bet_amount is None:
-            return player_balance
-        
-        self.display_bets()
-        bet_type = self.get_bet_choice()
-        if bet_type is None:
-            return player_balance
-        
-        bet_details = self.get_bet_details(bet_type)
-        winning_number, winning_color = self.spin_wheel()
-        
-        did_win = self.check_win(bet_type, bet_details, winning_number, winning_color)
-        payout = self.calculate_payout(bet_type, bet_amount, did_win)
-        new_balance = player_balance + payout
-        
-        if did_win:
-            print(f"Win: ${payout}!")
-        else:
-            print(f"Lose: ${bet_amount}!")
-        
-        print(f"New Balance: ${new_balance}")
-        return new_balance
-
 def play_roulette(username, user_data):
     game = RouletteGame()
-    
-    print("\n ROULETTE!!")
-    
     current_balance = user_data['balance']
     
-    while current_balance > 0:
-        current_balance = game.play_round(current_balance)
-        
-        play_again = input("\nAgain? (y/n): ").lower().strip()
-        if play_again != 'y':
-            break
+    game_data = {
+        'balance': current_balance,
+        'game_over': False,
+        'message': "Welcome to Roulette!"
+    }
     
-    user_data['balance'] = current_balance
-    return user_data
+    return game_data
 
-if __name__ == "__main__":
-    test_user = {'balance': 100, 'money_won': 0, 'money_lost': 0}
-    play_roulette("test_player", test_user)

@@ -32,8 +32,6 @@ class UserManager:
             "money_total": initial_balance,
             "money_won": 0.0,
             "money_lost": 0.0,
-            "total_deposited": initial_balance,
-            "total_withdrawn": 0.0,
         }
 
         users.append(new_user)
@@ -82,6 +80,7 @@ class User:
         for user in users:
             if user["username"] == self.username:
                 user["money_total"] += amount
+                user["money_won"] += amount
                 save_users(users)
                 self.data = user
                 return
@@ -92,6 +91,7 @@ class User:
         for user in users:
             if user["username"] == self.username:
                 user["money_total"] -= amount
+                user["money_lost"] += amount
                 save_users(users)
                 self.data = user
                 return

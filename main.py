@@ -153,8 +153,10 @@ def change_funds():
         user = User(session.get("username"))
         if amount > 0:
             user.add_funds(amount)
-        else:
+        elif amount < 0:
             user.remove_funds(-amount)
+        else:
+            return redirect(url_for("view_account"))
         return redirect(url_for("view_account"))
     return html
 

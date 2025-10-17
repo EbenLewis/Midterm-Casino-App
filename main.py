@@ -16,7 +16,6 @@ def home():
     <p> let's go gambling! <p>
     <button type="button" onclick="window.location.href='/login'">Login</button>
     <button type="button" onclick="window.location.href='/createaccount'">Create Account</button>
-    <button type="button" onclick="window.location.href='/userdata'">View user data</button>
     """
     return html
 
@@ -133,7 +132,6 @@ def login():
             return redirect(url_for("home"))
 
     return html
-
 
 # change funds route
 # WORKS
@@ -365,7 +363,6 @@ def blackjack_settle():
 
 
 # Roulette routes
-# Doesn't currently work
 @app.route("/roulette", methods=["GET", "POST"])
 def roulette():
     html = """

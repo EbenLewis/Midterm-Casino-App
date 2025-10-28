@@ -13,7 +13,6 @@ app.secret_key = "not_very_secret_key"  # hash this later
 def home():
     error_message = request.args.get('error', '')
     error_html = f'<p style="color: red;">{error_message}</p>' if error_message else ''
-    
     html = f"""
     <h1> Welcome to the casino </h1>
     <p> let's go gambling! <p>

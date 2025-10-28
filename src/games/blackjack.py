@@ -1,80 +1,59 @@
 import random
-
+#create card values
 CARD_VALUES = {
     '2': 2, '3': 3, '4': 4, '5': 5, '6': 6, '7': 7, '8': 8, '9': 9, '10': 10,
     'J': 10, 'Q': 10, 'K': 10, 'A': 11 
 }
-#this is good logic! doesn't need change
-def create_deck():
-    #Creates a standard 52-card deck.
-    suits = ['Hearts', 'Diamonds', 'Clubs', 'Spades']
-    ranks = list(CARD_VALUES.keys())
-    deck = [{'rank': rank, 'suit': suit} for suit in suits for rank in ranks]
-    random.shuffle(deck)
-    return deck
+#create deck and shuffle
+class Deck:
+    SUITS = ['Hearts', 'Diamonds', 'Clubs', 'Spades']
+    RANKS = list(CARD_VALUES.keys())
 
-def deal_card(deck):
-    #Deals a single card from the deck.
-    return deck.pop()
+    def __init__(self):
+        self.cards = [{'rank': r, 'suit': s} for s in self.SUITS for r in self.RANKS]
+        random.shuffle(self.cards)
 
-def calculate_hand_value(hand):
-    #Calculates the value of a hand, handling Aces
-    value = 0
-    num_aces = 0
-    for card in hand:
-        value += CARD_VALUES[card['rank']]
-        if card['rank'] == 'A':
-            num_aces += 1
-    
-    # Adjust for Aces if hand busts
-    while value > 21 and num_aces > 0:
-        value -= 10  # Change Ace value from 11 to 1
-        num_aces -= 1
-    return value
+    def deal(self):
+        if not self.cards:
+            raise IndexError("The deck is empty.")
+        return self.cards.pop()
 
-def display_hand(player_name, hand, hide_one=False):
-    #Displays the player's or dealer's hand.
-    print(f"\n{player_name}'s hand:")
-    if hide_one:
-        print(f"  {hand[0]['rank']} of {hand[0]['suit']}")
-        print("  [Hidden Card]")
-    else:
-        for card in hand:
-            print(f"  {card['rank']} of {card['suit']}")
-    print(f"Total value: {calculate_hand_value(hand)}")
+#create hand for player and dealer
+class Hand:
+    def __init__(self, owner: str):
+        self.owner = owner
+        self.cards = []
 
-#logic is good, just needs to be integratable with main (just logic, takes input inside the function parameters and returns output)
-def play_blackjack():
-    """Main function to play a game of Blackjack."""
-    print("Welcome to Blackjack!")
-    deck = create_deck()
+    def add(self, card):
+        self.cards.append(card)
 
-    player_hand = [deal_card(deck), deal_card(deck)]
-    dealer_hand = [deal_card(deck), deal_card(deck)]
+    def value(self) -> int:
+        total, aces = 0, 0
+        for c in self.cards:
+            total += CARD_VALUES[c['rank']]
+            if c['rank'] == 'A':
+                aces += 1
+        while total > 21 and aces > 0:
+            total -= 10
+            aces -= 1
+        return total
 
-    # Player's turn
-    while True:
-        display_hand("Your", player_hand)
-        display_hand("Dealer's", dealer_hand, hide_one=True)
-
-        player_value = calculate_hand_value(player_hand)
-        if player_value == 21:
-            print("Blackjack! You win!")
-            break
-        elif player_value > 21:
-            print("You busted! Dealer wins.")
-            break
-
-        choice = input("Do you want to [H]it or [S]tand? ").lower()
-        if choice == 'h':
-            player_hand.append(deal_card(deck))
-        elif choice == 's':
-            break
+# Display hand for the user and player
+    def show(self, hide_one=False):
+        print(f"\n{self.owner}'s hand:")
+        if hide_one and len(self.cards) >= 2:
+            c0 = self.cards[0]
+            print(f"  {c0['rank']} of {c0['suit']}")
+            print("  [Hidden Card]")
+            shown_val = Hand(self.owner)
+            shown_val.cards = [self.cards[0]]
+            print(f"Total value (showing): {CARD_VALUES[c0['rank']] if c0['rank']!='A' else 11}")
         else:
             for c in self.cards:
                 print(f"  {c['rank']} of {c['suit']}")
             print(f"Total value: {self.value()}")
 
+#create main game class
 class BlackjackGame:
     def __init__(self):
         self.deck = Deck()
@@ -86,6 +65,7 @@ class BlackjackGame:
             self.player.add(self.deck.deal())
             self.dealer.add(self.deck.deal())
 
+    #option for player to hit or stand 
     def player_turn(self) -> bool:
         while True:
             self.player.show(hide_one=False)
@@ -107,6 +87,7 @@ class BlackjackGame:
             else:
                 print("Invalid input. Please enter 'h' or 's'.")
 
+    #dealer's turn logic
     def dealer_turn(self):
         print("\nDealer's turn:")
         self.dealer.show(hide_one=False)
@@ -114,6 +95,7 @@ class BlackjackGame:
             self.dealer.add(self.deck.deal())
             self.dealer.show(hide_one=False)
 
+    #settle the game outcome
     def settle(self):
         dv = self.dealer.value()
         pv = self.player.value()
@@ -125,7 +107,7 @@ class BlackjackGame:
             print("You win!")
         else:
             print("It's a push (tie)!")
-
+    #play a full round of blackjack
     def play_round(self):
         self.__init__()
         print("Welcome to Blackjack!")
@@ -134,7 +116,7 @@ class BlackjackGame:
         if proceed and self.player.value() <= 21:
             self.dealer_turn()
             self.settle()
-
+    #option to play again 
     def run(self):
         while True:
             self.play_round()

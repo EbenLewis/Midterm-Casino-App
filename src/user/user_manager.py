@@ -3,12 +3,12 @@ import bcrypt
 
 
 def load_users():
-    with open("user.json", "r") as file:
+    with open("data/user.json", "r") as file:
         return json.load(file)
 
 
 def save_users(users):
-    with open("user.json", "w") as file:
+    with open("data/user.json", "w") as file:
         json.dump(users, file, indent=4)
 
 
@@ -19,7 +19,7 @@ class UserManager:
 
         # check for duplicate username
         for user in users:
-            if user["username"] == username:
+            if user["username"].lower() == username.lower():
                 return {"success": False, "message": "Username already exists"}
 
         # hash password
@@ -32,8 +32,6 @@ class UserManager:
             "money_total": initial_balance,
             "money_won": 0.0,
             "money_lost": 0.0,
-            "total_deposited": initial_balance,
-            "total_withdrawn": 0.0,
         }
 
         users.append(new_user)
@@ -45,7 +43,7 @@ class UserManager:
         users = load_users()
 
         for user in users:
-            if user["username"] == username:
+            if user["username"].lower() == username.lower():
                 return bcrypt.checkpw(
                     password.encode("utf-8"), user["password"].encode("utf-8")
                 )
@@ -56,7 +54,7 @@ class UserManager:
         users = load_users()
 
         for user in users:
-            if user["username"] == username:
+            if user["username"].lower() == username.lower():
                 return user
         return {}
 
@@ -70,7 +68,7 @@ class User:
         users = load_users()
 
         for user in users:
-            if user["username"] == self.username:
+            if user["username"].lower() == self.username.lower():
                 user["money_total"] += amount
                 save_users(users)
                 self.data = user
@@ -80,8 +78,9 @@ class User:
         users = load_users()
 
         for user in users:
-            if user["username"] == self.username:
+            if user["username"].lower() == self.username.lower():
                 user["money_total"] += amount
+                user["money_won"] += amount
                 save_users(users)
                 self.data = user
                 return
@@ -90,8 +89,9 @@ class User:
         users = load_users()
 
         for user in users:
-            if user["username"] == self.username:
+            if user["username"].lower() == self.username.lower():
                 user["money_total"] -= amount
+                user["money_lost"] += amount
                 save_users(users)
                 self.data = user
                 return
@@ -100,7 +100,7 @@ class User:
         users = load_users()
 
         for user in users:
-            if user["username"] == self.username:
+            if user["username"].lower() == self.username.lower():
                 user["money_total"] -= amount
                 save_users(users)
                 self.data = user

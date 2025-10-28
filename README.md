@@ -1,11 +1,11 @@
 Eben, Kimberly, Henry, and June's Casino v1.0
 
-SETUP & INSTALLAION INSTRUCTIONS
+SETUP & INSTALLATION INSTRUCTIONS
 1. Pull main from this repo
-2. Run pip install requirements.txt
+2. Run "pip install requirements.txt"
 3. Run main.py
 4. Go to the web server that the flask app is running on
-5. Select "create account" and input a username, password, and inital funding
+5. Select "create account" and input a username, password, and initial funding
 6. Go gamble to your heart (or your wallet)'s content
 
 USER HOME PAGE MENU INSTRUCTIONS
@@ -20,7 +20,7 @@ USER HOME PAGE MENU INSTRUCTIONS
    3. Place your bet and select "deal cards"
    4. Once you see all parties' cards, select "hit" or "stand"
    5. Repeat until either you or the dealer wins
-   6. Return to the user home
+   6. Return to the user's home
 3. Play Roulette
    1. From the user home screen, select "play roulette"
    2. From the confirm screen, select "play roulette"
@@ -35,3 +35,4 @@ USER HOME PAGE MENU INSTRUCTIONS
 5. Logout
    1. Press "logout"
    
+For maintainers, all documentation is in \docs

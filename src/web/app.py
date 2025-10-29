@@ -13,9 +13,8 @@ app.secret_key = "not_very_secret_key"  # hash this later
 def home():
     error_message = request.args.get('error', '')
     error_html = f'<p style="color: red;">{error_message}</p>' if error_message else ''
-    
     html = f"""
-    <h1> Welcome to the casino </h1>
+    <h1> Welcome to the casino" </h1>
     <p> let's go gambling! <p>
     {error_html}
     <button type="button" onclick="window.location.href='/login'">Login</button>
@@ -28,16 +27,20 @@ def home():
 # WORKS
 @app.route("/userhome")
 def user_home():
+    userdata = UserManager.view_data(session.get("username"))
+    if 'user_preferred_name' in userdata:
+        name = userdata['user_preferred_name']
+    else:
+        name = userdata['username']
     html = (
-        """
-    <h1> Welcome back, """
-        + session.get("username")
-        + """</h1>
+        f"""
+    <h1> Welcome back, """+ name+ """</h1>
     <p> let's go gambling! <p>
+    <p> Total Money: $"""+ f"{userdata['money_total']:.2f}"+ """</p>
     <button type="button" onclick="window.location.href='/userdata'">View user data</button>
     <button type="button" onclick="window.location.href='/blackjack'">Play Blackjack</button>
     <button type="button" onclick="window.location.href='/roulette'">Play Roulette</button>
-    <button type="button" onclick="window.location.href='/sportsbetting'">Sports betting</button>
+    <button type="button" onclick="window.location.href='/slots'">Play Slots</button>
     <button type="button" onclick="window.location.href='/logout'">Logout</button>
     """
     )
@@ -93,6 +96,9 @@ def create_account():
         <label for="initial_balance">Add initial funds:</label>
         <input type="number" id="initial_balance" name="initial_balance"><br><br>
 
+        <label for="preferred_name">Add a preferred name (optional):</label>
+        <input type="text" id="preferred_name" name="preferred_name"><br><br>
+        
         <input type="submit" value="Submit">
     </form>
     """
@@ -102,8 +108,11 @@ def create_account():
         username = request.form["username"]
         password = request.form["password"]
         initial_balance = float(request.form["initial_balance"])
-        UserManager.new_user(username, password, initial_balance)
-        return redirect(url_for("home"))
+        user_preferred_name = request.form["preferred_name"]
+        UserManager.new_user(username, password, initial_balance, user_preferred_name)
+        session["username"] = username
+        session["logged_in"] = True
+        return redirect(url_for("user_home"))
 
     return html
 
@@ -472,12 +481,12 @@ def roulette_running():
     return html
 
 
-# Sports betting route
+# Slots route
 # Slated for a different sprint, placeholder endpoint
-@app.route("/sportsbetting")
+@app.route("/slots")
 def sportsbetting():
     html = """
-    <p>There will be sports betting here eventually!<p>
+    <p>There will be slots here eventually!<p>
     """
     return html
 

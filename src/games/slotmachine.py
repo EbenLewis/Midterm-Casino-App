@@ -47,7 +47,7 @@ class TextSlotMachine:
             print("2. Change bet")
             print("3. Quit")
             
-            choice = input("Choose: ")
+            choice = input("Choose(between 1 to 3): ")
             
             if choice == "1":
                 self.spin()

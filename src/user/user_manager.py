@@ -14,7 +14,7 @@ def save_users(users):
 
 class UserManager:
     @classmethod
-    def new_user(cls, username: str, password: str, initial_balance: float) -> dict:
+    def new_user(cls, username: str, password: str, initial_balance: float, user_preferred_name: str) -> dict:
         users = load_users() 
 
         # check for duplicate username
@@ -30,6 +30,7 @@ class UserManager:
             "password": hashed_password.decode("utf-8"),
             "userid": len(users) + 1,
             "money_total": initial_balance,
+            "user_preferred_name": user_preferred_name,
             "money_won": 0.0,
             "money_lost": 0.0,
         }

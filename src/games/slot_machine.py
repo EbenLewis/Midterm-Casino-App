@@ -10,7 +10,7 @@ SYMBOLS = ["🍒", "🍋", "🍊", "⭐", "🔔", "7️⃣"]
 WEIGHTS = {"🍒": 6, "🍋": 6, "🍊": 6, "⭐": 4, "🔔": 3, "7️⃣": 1}
 
 TRIPLE_PAYOUT = {"🍒": 10, "🍋": 12, "🍊": 14, "⭐": 18, "🔔": 25, "7️⃣": 50}
-PAIR_PAYOUT = 3  # any 2-of-a-kind
+PAIR_PAYOUT = 3  
 
 def weighted_spin(n: int = 3) -> List[str]:
     symbols, weights = zip(*[(s, WEIGHTS[s]) for s in SYMBOLS])
@@ -45,7 +45,7 @@ def load_state(default_money: int = 100, default_bet: int = 5) -> Tuple[int, int
 class TextSlotMachine:
     money: int = field(default=100)
     bet: int = field(default=5)
-    seed: Optional[int] = field(default=None)  # set for deterministic tests
+    seed: Optional[int] = field(default=None) 
 
     def __post_init__(self):
         if self.seed is not None:
@@ -68,7 +68,7 @@ class TextSlotMachine:
             temp = weighted_spin(3)
             print(f"[ {temp[0]} | {temp[1]} | {temp[2]} ]", end="\r", flush=True)
             time.sleep(delay)
-        print(" " * 30, end="\r")  # clear line
+        print(" " * 30, end="\r")  
 
     def play(self):
         print("🎰 Welcome to the Slot Machine! (type 'h' for help)")

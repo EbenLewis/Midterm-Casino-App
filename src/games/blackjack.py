@@ -1,10 +1,10 @@
 import random
-
+#create card values
 CARD_VALUES = {
     '2': 2, '3': 3, '4': 4, '5': 5, '6': 6, '7': 7, '8': 8, '9': 9, '10': 10,
     'J': 10, 'Q': 10, 'K': 10, 'A': 11 
 }
-
+#create deck and shuffle
 class Deck:
     SUITS = ['Hearts', 'Diamonds', 'Clubs', 'Spades']
     RANKS = list(CARD_VALUES.keys())
@@ -18,6 +18,7 @@ class Deck:
             raise IndexError("The deck is empty.")
         return self.cards.pop()
 
+#create hand for player and dealer
 class Hand:
     def __init__(self, owner: str):
         self.owner = owner
@@ -37,6 +38,7 @@ class Hand:
             aces -= 1
         return total
 
+# Display hand for the user and player
     def show(self, hide_one=False):
         print(f"\n{self.owner}'s hand:")
         if hide_one and len(self.cards) >= 2:
@@ -51,6 +53,7 @@ class Hand:
                 print(f"  {c['rank']} of {c['suit']}")
             print(f"Total value: {self.value()}")
 
+#create main game class
 class BlackjackGame:
     def __init__(self):
         self.deck = Deck()
@@ -62,6 +65,7 @@ class BlackjackGame:
             self.player.add(self.deck.deal())
             self.dealer.add(self.deck.deal())
 
+    #option for player to hit or stand 
     def player_turn(self) -> bool:
         while True:
             self.player.show(hide_one=False)
@@ -83,6 +87,7 @@ class BlackjackGame:
             else:
                 print("Invalid input. Please enter 'h' or 's'.")
 
+    #dealer's turn logic
     def dealer_turn(self):
         print("\nDealer's turn:")
         self.dealer.show(hide_one=False)
@@ -90,6 +95,7 @@ class BlackjackGame:
             self.dealer.add(self.deck.deal())
             self.dealer.show(hide_one=False)
 
+    #settle the game outcome
     def settle(self):
         dv = self.dealer.value()
         pv = self.player.value()
@@ -101,7 +107,7 @@ class BlackjackGame:
             print("You win!")
         else:
             print("It's a push (tie)!")
-
+    #play a full round of blackjack
     def play_round(self):
         self.__init__()
         print("Welcome to Blackjack!")
@@ -110,7 +116,7 @@ class BlackjackGame:
         if proceed and self.player.value() <= 21:
             self.dealer_turn()
             self.settle()
-
+    #option to play again 
     def run(self):
         while True:
             self.play_round()

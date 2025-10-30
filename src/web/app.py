@@ -6,6 +6,26 @@ from ..games.roulette import RouletteGame
 app = Flask(__name__)
 app.secret_key = "not_very_secret_key"  # hash this later
 
+#style css
+base_style = '''
+<style>
+    body{
+        background-color: darkgreen;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        text-decoration-color: rgb(17, 9, 226);
+        color: white;
+    }
+    button{
+        color: white;
+        background-color: blue;
+        border: 5px;
+        border-color: black;
+    }
+    button:hover{
+        color:coral
+    }
+</style>
+'''
 
 # landing page
 # WORKS
@@ -14,13 +34,13 @@ def home():
     error_message = request.args.get("error", "")
     error_html = f'<p style="color: red;">{error_message}</p>' if error_message else ""
     html = f"""
-    <h1> Welcome to the casino" </h1>
+    <h1> Welcome to the casino </h1>
     <p> let's go gambling! <p>
     {error_html}
     <button type="button" onclick="window.location.href='/login'">Login</button>
     <button type="button" onclick="window.location.href='/createaccount'">Create Account</button>
     """
-    return html
+    return base_style + html
 
 
 # home page after login for user
@@ -48,7 +68,7 @@ def user_home():
     <button type="button" onclick="window.location.href='/logout'">Logout</button>
     """
     )
-    return html
+    return base_style + html
 
 
 # display user data upon request
@@ -81,7 +101,7 @@ def view_account():
         <button type="button" onclick="window.location.href='/userhome'">Return to home</button>
         """
         )
-        return html
+        return base_style + html
 
 
 # create account page
@@ -118,7 +138,7 @@ def create_account():
         session["logged_in"] = True
         return redirect(url_for("user_home"))
 
-    return html
+    return base_style + html
 
 
 # login route
@@ -152,7 +172,7 @@ def login():
         else:
             return redirect(url_for("home", error="Invalid login credentials"))
 
-    return html
+    return base_style + html
 
 
 # change funds route
@@ -214,7 +234,7 @@ def change_funds():
         except (ValueError, TypeError):
             return redirect(url_for("change_funds", error="Invalid deposit amount"))
 
-    return html
+    return base_style + html
 
 
 # Blackjack routes
@@ -224,7 +244,7 @@ def blackjack():
     <button type="button" onclick="window.location.href='/blackjack/active'">Play blackjack?</button>
     <button type="button" onclick="window.location.href='/userhome'">Return to home</button>
     """
-    return html
+    return base_style + html
 
 
 # route to play the actual game in
@@ -291,7 +311,7 @@ def blackjack_running():
     </form>
     <button type="button" onclick="window.location.href='/userhome'">Back to home</button>
     """
-    return html
+    return base_style + html
 
 
 @app.route("/blackjack/game", methods=["GET", "POST"])
@@ -395,7 +415,7 @@ def blackjack_game():
         </form>
         """
 
-    return html
+    return base_style + html
 
 
 @app.route("/blackjack/settle", methods=["POST"])
@@ -447,7 +467,7 @@ def blackjack_settle():
     <button type="button" onclick="window.location.href='/userhome'">Home</button>
     """
 
-    return html
+    return base_style + html
 
 
 # Roulette routes
@@ -459,7 +479,7 @@ def roulette():
     <button type="button" onclick="window.location.href='/userhome'">Return to home</button>
     """
 
-    return html
+    return base_style + html
 
 
 @app.route("/roulette/active", methods=["GET", "POST"])
@@ -574,7 +594,7 @@ def roulette_running():
     </form>
     <button type="button" onclick="window.location.href='/userhome'">Back to home</button>
     """
-    return html
+    return base_style + html
 
 
 # Slots route
@@ -584,7 +604,7 @@ def sportsbetting():
     html = """
     <p>There will be slots here eventually!<p>
     """
-    return html
+    return base_style + html
 
 
 @app.route("/logout")

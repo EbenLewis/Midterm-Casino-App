@@ -1,0 +1,15 @@
+body{
+background-color: navy;
+font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+text-decoration-color:darkslategrey;
+color: darkgoldenrod;
+}
+button{
+color: white;
+background-color: slategray;
+border: 5px;
+border-color: black;
+}
+button:hover{
+color:darkgoldenrod
+}

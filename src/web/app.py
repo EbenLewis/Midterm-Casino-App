@@ -34,6 +34,7 @@ def user_home():
         name = userdata['username']
     html = (
         f"""
+    <body> style = "color: blue;" <body>
     <h1> Welcome back, """+ name+ """</h1>
     <p> let's go gambling! <p>
     <p> Total Money: $"""+ f"{userdata['money_total']:.2f}"+ """</p>

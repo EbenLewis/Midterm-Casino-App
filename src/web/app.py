@@ -11,8 +11,8 @@ app.secret_key = "not_very_secret_key"  # hash this later
 # WORKS
 @app.route("/", methods=["GET", "POST"])
 def home():
-    error_message = request.args.get('error', '')
-    error_html = f'<p style="color: red;">{error_message}</p>' if error_message else ''
+    error_message = request.args.get("error", "")
+    error_html = f'<p style="color: red;">{error_message}</p>' if error_message else ""
     html = f"""
     <h1> Welcome to the casino" </h1>
     <p> let's go gambling! <p>
@@ -28,16 +28,19 @@ def home():
 @app.route("/userhome")
 def user_home():
     userdata = UserManager.view_data(session.get("username"))
-    if 'user_preferred_name' in userdata:
-        name = userdata['user_preferred_name']
+    if "user_preferred_name" in userdata:
+        name = userdata["user_preferred_name"]
     else:
-        name = userdata['username']
+        name = userdata["username"]
     html = (
         f"""
-    <body> style = "color: blue;" <body>
-    <h1> Welcome back, """+ name+ """</h1>
+    <h1> Welcome back, """
+        + name
+        + """</h1>
     <p> let's go gambling! <p>
-    <p> Total Money: $"""+ f"{userdata['money_total']:.2f}"+ """</p>
+    <p> Total Money: $"""
+        + f"{userdata['money_total']:.2f}"
+        + """</p>
     <button type="button" onclick="window.location.href='/userdata'">View user data</button>
     <button type="button" onclick="window.location.href='/blackjack'">Play Blackjack</button>
     <button type="button" onclick="window.location.href='/roulette'">Play Roulette</button>
@@ -122,9 +125,9 @@ def create_account():
 # WORKS
 @app.route("/login", methods=["GET", "POST"])
 def login():
-    error_message = request.args.get('error', '')
-    error_html = f'<p style="color: red;">{error_message}</p>' if error_message else ''
-    
+    error_message = request.args.get("error", "")
+    error_html = f'<p style="color: red;">{error_message}</p>' if error_message else ""
+
     html = f"""
     <form action="/login" method="POST"> 
         <label for = "username">Enter your username</label>
@@ -151,6 +154,7 @@ def login():
 
     return html
 
+
 # change funds route
 # WORKS
 @app.route("/changefunds", methods=["GET", "POST"])
@@ -158,27 +162,62 @@ def change_funds():
     if not session.get("logged_in"):
         return redirect(url_for("home"))
 
-    html = """
+    error_message = request.args.get("error", "")
+    error_html = f'<p style="color: red;">{error_message}</p>' if error_message else ""
+
+    html = f"""
     <form action="/changefunds" method="POST">
         <label for="amount">Enter amount to deposit/remove (use negative numbers to remove):</label>
-        <input type="number" id="amount" name="amount"><br><br>
+        <input type="number" id="amount" name="amount" step="0.01"><br><br>
         <input type="submit" value="Submit">
-        </form>"""
+        </form>
+    {error_html}"""
+
     if request.method == "POST":
-        amount = float(request.form["amount"])
-        user = User(session.get("username"))
-        if amount > 0:
-            user.add_funds(amount)
-        elif amount < 0:
-            user.remove_funds(-amount)
-        else:
+        try:
+            amount_str = request.form.get("amount", "")
+            if not amount_str:
+                return redirect(url_for("change_funds", error="Invalid deposit amount"))
+
+            amount = float(amount_str)
+
+            #check if deposit amounts are within limit
+            if amount > 0:
+                if amount < 0.01:
+                    return redirect(
+                        url_for("change_funds", error="Invalid deposit amount")
+                    )
+                if amount > 1000000000000.00:
+                    return redirect(
+                        url_for("change_funds", error="Invalid deposit amount")
+                    )
+
+            #check if withdrawal amounts are within limit
+            elif amount < 0:
+                if amount > -0.01:
+                    return redirect(
+                        url_for("change_funds", error="Invalid deposit amount")
+                    )
+
+            #zero handling
+            else:
+                return redirect(url_for("view_account"))
+
+            user = User(session.get("username"))
+            if amount > 0:
+                user.add_funds(amount)
+            elif amount < 0:
+                user.remove_funds(-amount)
+
             return redirect(url_for("view_account"))
-        return redirect(url_for("view_account"))
+
+        except (ValueError, TypeError):
+            return redirect(url_for("change_funds", error="Invalid deposit amount"))
+
     return html
 
 
 # Blackjack routes
-# Doesn't work, when user presses play blackjack, game runs in terminal not webpage
 @app.route("/blackjack", methods=["GET", "POST"])
 def blackjack():
     html = """
@@ -197,27 +236,54 @@ def blackjack_running():
     userdata = UserManager.view_data(session.get("username"))
     balance = userdata.get("money_total", 0.0)
 
+    error_message = request.args.get("error", "")
+    error_html = f'<p style="color: red;">{error_message}</p>' if error_message else ""
+
     # Handle betting
     if request.method == "POST" and "bet" in request.form:
-        bet = float(request.form["bet"])
-        session["blackjack_bet"] = bet
+        try:
+            bet_str = request.form.get("bet", "")
+            if not bet_str:
+                return redirect(
+                    url_for("blackjack_running", error="Invalid bet amount")
+                )
 
-        # Create new game and deal initial cards
-        game = BlackjackGame()
-        game.initial_deal()
-        
-        # Store game state in session
-        session["blackjack_game"] = {
-            'player_cards': game.player.cards,
-            'dealer_cards': game.dealer.cards,
-            'deck_cards': game.deck.cards
-        }
+            bet = float(bet_str)
 
-        return redirect(url_for("blackjack_game"))
+            # check if bet is positive
+            if bet < 0.01:
+                return redirect(
+                    url_for("blackjack_running", error="Invalid bet amount")
+                )
+
+            # check bet against balance
+            if bet > balance:
+                return redirect(
+                    url_for("blackjack_running", error="Insufficient funds for bet")
+                )
+
+            session["blackjack_bet"] = bet
+
+            # Create new game and deal initial cards
+            game = BlackjackGame()
+            game.initial_deal()
+
+            # Store game state in session
+            session["blackjack_game"] = {
+                "player_cards": game.player.cards,
+                "dealer_cards": game.dealer.cards,
+                "deck_cards": game.deck.cards,
+            }
+
+            return redirect(url_for("blackjack_game"))
+
+        except (ValueError, TypeError):
+            return redirect(url_for("blackjack_running", error="Invalid bet amount"))
 
     html = f"""
     <h1>Blackjack</h1>
     <p><strong>Balance: ${balance:.2f}</strong></p>
+    {error_html}
     <form action="/blackjack/active" method="POST">
         <label for="bet">Place your bet:</label>
         <input type="number" id="bet" name="bet" step="0.01" required>
@@ -236,9 +302,9 @@ def blackjack_game():
     # Recreate game from session
     game = BlackjackGame()
     game_data = session["blackjack_game"]
-    game.player.cards = game_data['player_cards']
-    game.dealer.cards = game_data['dealer_cards']
-    game.deck.cards = game_data['deck_cards']
+    game.player.cards = game_data["player_cards"]
+    game.dealer.cards = game_data["dealer_cards"]
+    game.deck.cards = game_data["deck_cards"]
 
     # Handle hit/stand actions
     if request.method == "POST":
@@ -252,12 +318,12 @@ def blackjack_game():
             while game.dealer.value() < 17:
                 new_card = game.deck.deal()
                 game.dealer.add(new_card)
-        
+
         # Update session
         session["blackjack_game"] = {
-            'player_cards': game.player.cards,
-            'dealer_cards': game.dealer.cards,
-            'deck_cards': game.deck.cards
+            "player_cards": game.player.cards,
+            "dealer_cards": game.dealer.cards,
+            "deck_cards": game.deck.cards,
         }
 
     player_total = game.player.value()
@@ -290,13 +356,17 @@ def blackjack_game():
         return [f"{card['rank']} of {card['suit']}" for card in cards]
 
     player_cards_str = ", ".join(format_cards(game.player.cards))
-    
-    if game_over or (request.method == "POST" and request.form.get("action") == "stand"):
+
+    if game_over or (
+        request.method == "POST" and request.form.get("action") == "stand"
+    ):
         dealer_cards_str = ", ".join(format_cards(game.dealer.cards))
         dealer_display = f"Dealer cards: {dealer_cards_str} (Total: {dealer_total})"
     else:
         # Show only first dealer card
-        first_card = format_cards([game.dealer.cards[0]])[0] if game.dealer.cards else ""
+        first_card = (
+            format_cards([game.dealer.cards[0]])[0] if game.dealer.cards else ""
+        )
         dealer_display = f"Dealer cards: {first_card}, [Hidden Card]"
 
     html = f"""
@@ -336,8 +406,8 @@ def blackjack_settle():
     # Recreate game from session to get final results
     game = BlackjackGame()
     game_data = session["blackjack_game"]
-    game.player.cards = game_data['player_cards']
-    game.dealer.cards = game_data['dealer_cards']
+    game.player.cards = game_data["player_cards"]
+    game.dealer.cards = game_data["dealer_cards"]
 
     player_total = game.player.value()
     dealer_total = game.dealer.value()
@@ -345,7 +415,7 @@ def blackjack_settle():
 
     # Determine winner and update money
     user = User(session.get("username"))
-    
+
     if player_total > 21:
         result = "You busted! You lose!"
         user.update_money_lost(bet)
@@ -376,7 +446,7 @@ def blackjack_settle():
     <button type="button" onclick="window.location.href='/blackjack/active'">Play Again</button>
     <button type="button" onclick="window.location.href='/userhome'">Home</button>
     """
-    
+
     return html
 
 
@@ -400,13 +470,35 @@ def roulette_running():
     userdata = UserManager.view_data(session.get("username"))
     balance = userdata.get("money_total", 0.0)
 
+    error_message = request.args.get("error", "")
+    error_html = f'<p style="color: red;">{error_message}</p>' if error_message else ""
+
     if request.method == "POST":
-        bet = float(request.form["bet"])
-        bet_type = request.form["bet_type"]
+        try:
+            bet_str = request.form.get("bet", "")
+            if not bet_str:
+                return redirect(url_for("roulette_running", error="Invalid bet amount"))
+
+            bet = float(bet_str)
+
+            #check that bet is positive
+            if bet < 0.01:
+                return redirect(url_for("roulette_running", error="Invalid bet amount"))
+
+            #check bet against balance
+            if bet > balance:
+                return redirect(
+                    url_for("roulette_running", error="Insufficient funds for bet")
+                )
+
+            bet_type = request.form["bet_type"]
+
+        except (ValueError, TypeError):
+            return redirect(url_for("roulette_running", error="Invalid bet amount"))
 
         # Use RouletteGame class
         roulette_game = RouletteGame()
-        
+
         # Map web form values to game values
         if bet_type == "red":
             game_bet_type = "2"
@@ -425,17 +517,19 @@ def roulette_running():
 
         # Play the round
         if game_bet_type == "1":
-            result = roulette_game.play_round(balance, str(bet), game_bet_type, straight_number)
+            result = roulette_game.play_round(
+                balance, str(bet), game_bet_type, straight_number
+            )
         else:
             result = roulette_game.play_round(balance, str(bet), game_bet_type)
 
-        if 'error' in result:
+        if "error" in result:
             return f"<p>Error: {result['error']} <a href='/roulette/active'>Try again</a></p>"
 
-        winning_number = result['winning_number']
-        winning_color = result['winning_color']
-        did_win = result['did_win']
-        payout = result['payout']
+        winning_number = result["winning_number"]
+        winning_color = result["winning_color"]
+        did_win = result["did_win"]
+        payout = result["payout"]
 
         user = User(session.get("username"))
 
@@ -461,6 +555,7 @@ def roulette_running():
     html = f"""
     <h1>Roulette</h1>
     <p><strong>Balance: ${balance:.2f}</strong></p>
+    {error_html}
     <form action="/roulette/active" method="POST">
         <label for="bet">Bet amount:</label>
         <input type="number" id="bet" name="bet" step="0.01" required><br><br>

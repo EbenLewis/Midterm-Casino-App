@@ -1,0 +1,27 @@
+[
+    {
+        "username": "Debug",
+        "password": "$2b$12$SX2WF5VNZtYIqEnt7jvzLeFsCJaBiQFxXIU5gBOpm3R0Hl8S4Wf5G",
+        "userid": 1,
+        "money_total": 1000000.0,
+        "money_won": 0.0,
+        "money_lost": 0.0
+    },
+    {
+        "username": "Debug2",
+        "password": "$2b$12$R3oMH09UQja84GOssbvYAe7J8FYQj8LOIWIe3y3dG0fLrWQBjm.C.",
+        "userid": 2,
+        "money_total": 100.0,
+        "money_won": 0.0,
+        "money_lost": 0.0
+    },
+    {
+        "username": "Debug3",
+        "password": "$2b$12$CRy1qvrBgiSjTjMmAEH8LuQ000xdkY0Nh/.moK2UKvczSIga/Q3se",
+        "userid": 3,
+        "money_total": 200.0,
+        "user_preferred_name": "Eben",
+        "money_won": 0.0,
+        "money_lost": 0.0
+    }
+]

@@ -3,9 +3,9 @@
         "username": "Debug",
         "password": "$2b$12$SX2WF5VNZtYIqEnt7jvzLeFsCJaBiQFxXIU5gBOpm3R0Hl8S4Wf5G",
         "userid": 1,
-        "money_total": 1000000.0,
-        "money_won": 0.0,
-        "money_lost": 0.0
+        "money_total": 150.0,
+        "money_won": 12500051.0,
+        "money_lost": 5500001.0
     },
     {
         "username": "Debug2",

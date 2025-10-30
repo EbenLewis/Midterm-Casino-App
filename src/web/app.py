@@ -1,7 +1,9 @@
 from flask import Flask, request, redirect, url_for, session
+from PIL import Image 
 from ..user.user_manager import UserManager, User
 from ..games.blackjack import BlackjackGame
 from ..games.roulette import RouletteGame
+from ..games.slot_machine import TextSlotMachine
 
 app = Flask(__name__)
 app.secret_key = "not_very_secret_key"  # hash this later
@@ -560,12 +562,13 @@ def roulette_running():
             user.update_money_lost(bet)
             result_text = f"You lose! Number: {winning_number} ({winning_color})"
 
-        return f"""
+        html = f"""
         <h1>Roulette Result</h1>
         <p>{result_text}</p>
         <button type="button" onclick="window.location.href='/roulette/active'">Play Again</button>
         <button type="button" onclick="window.location.href='/userhome'">Home</button>
         """
+        return html + base_style
 
     # Generate number options for dropdown
     number_options = ""
@@ -600,12 +603,25 @@ def roulette_running():
 # Slots route
 # Slated for a different sprint, placeholder endpoint
 @app.route("/slots")
-def sportsbetting():
+def slots():
     html = """
-    <p>There will be slots here eventually!<p>
+    <p>Slots!<p>
+    <label for="bet">Bet amount:</label>
+        <input type="number" id="bet" name="bet" step="0.01" required><br><br>
+    <button type="button" onclick="window.location.href='slots/active'">Play Slots?</button>
+    <button type="button" onclick="window.location.href='/userhome'">Back to home</button>
     """
     return base_style + html
 
+
+@app.route("/slots/active")
+def play_slots(): 
+    image_path = "../data/lever.png"
+    html = f'''
+    <img src="{Image.open(image_path)}" alt="image not found">
+    <button type="button" onclick="window.location.href='/userhome'">Back to home</button>
+    '''
+    return base_style + html
 
 @app.route("/logout")
 def logout():

@@ -2,6 +2,7 @@ from flask import Flask, request, redirect, url_for, session
 from ..user.user_manager import UserManager, User
 from ..games.blackjack import BlackjackGame
 from ..games.roulette import RouletteGame
+from ..games.slot_machine import TextSlotMachine
 
 app = Flask(__name__)
 app.secret_key = "not_very_secret_key"  # hash this later
@@ -599,10 +600,69 @@ def roulette_running():
 
 # Slots route
 # Slated for a different sprint, placeholder endpoint
-@app.route("/slots")
-def sportsbetting():
-    html = """
-    <p>There will be slots here eventually!<p>
+# Slots route
+@app.route("/slots", methods=["GET", "POST"])
+def slots():
+    if not session.get("logged_in"):
+        return redirect(url_for("home"))
+
+    userdata = UserManager.view_data(session.get("username"))
+    balance = userdata.get("money_total", 0.0)
+
+    error_message = request.args.get("error", "")
+    error_html = f'<p style="color: red;">{error_message}</p>' if error_message else ""
+
+    if request.method == "POST":
+        try:
+            bet_str = request.form.get("bet", "")
+            if not bet_str:
+                return redirect(url_for("slots", error="Invalid bet amount"))
+
+            bet = float(bet_str)
+
+            if bet < 0.01:
+                return redirect(url_for("slots", error="Invalid bet amount"))
+
+            if bet > balance:
+                return redirect(url_for("slots", error="Insufficient funds for bet"))
+
+            slot_game = TextSlotMachine(money=balance, bet=bet)
+            slots, win, msg = slot_game.spin_once()
+            
+            user = User(session.get("username"))
+            new_balance = slot_game.money
+            
+            if win > 0:
+                user.update_money_won(win)
+            else:
+                user.update_money_lost(bet)
+            
+            symbols_display = f"[ {slots[0]} | {slots[1]} | {slots[2]} ]"
+            
+            html = f"""
+            <h1>Slot Machine Result</h1>
+            <p><strong>Bet: ${bet:.2f}</strong></p>
+            <p><strong>Result: {symbols_display}</strong></p>
+            <p><strong>{msg}</strong></p>
+            <p><strong>New Balance: ${new_balance:.2f}</strong></p>
+            <button type="button" onclick="window.location.href='/slots'">Spin Again</button>
+            <button type="button" onclick="window.location.href='/userhome'">Back to Home</button>
+            """
+            return base_style + html
+
+        except (ValueError, TypeError):
+            return redirect(url_for("slots", error="Invalid bet amount"))
+
+    html = f"""
+    <h1>🎰 Slot Machine</h1>
+    <p><strong>Balance: ${balance:.2f}</strong></p>
+    {error_html}
+    <form action="/slots" method="POST">
+        <label for="bet">Bet amount:</label>
+        <input type="number" id="bet" name="bet" step="0.01" min="0.01" max="{balance}" value="5.00" required><br><br>
+        <button type="submit">Spin!</button>
+    </form>
+    <button type="button" onclick="window.location.href='/userhome'">Back to Home</button>
     """
     return base_style + html
 

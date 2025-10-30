@@ -10,20 +10,20 @@ app.secret_key = "not_very_secret_key"  # hash this later
 base_style = '''
 <style>
     body{
-        background-color: darkgreen;
+        background-color: navy;
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        text-decoration-color: rgb(17, 9, 226);
-        color: white;
-    }
+        text-decoration-color:darkslategrey;
+        color: darkgoldenrod;
+        }
     button{
         color: white;
-        background-color: blue;
+        background-color: slategray;
         border: 5px;
         border-color: black;
-    }
+        }
     button:hover{
-        color:coral
-    }
+        color:darkgoldenrod
+        }
 </style>
 '''
 

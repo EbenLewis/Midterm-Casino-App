@@ -29,9 +29,11 @@ USER HOME PAGE MENU INSTRUCTIONS
    5. Press "spin"
    6. Collect (or don't) collect your earnings
    7. Press "return to home"
-4. Play Sports Betting
-   1. Press "play sports betting"
-   2. Press "return to home"
+4. Slot Machines
+   1. Press "Play slots"
+   2. Input Bet
+   3. Click the lever to spin
+   4. Return to home
 5. Logout
    1. Press "logout"
    

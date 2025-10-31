@@ -5,7 +5,11 @@ from ..games.blackjack import BlackjackGame
 from ..games.roulette import RouletteGame
 from ..games.slot_machine import TextSlotMachine
 
-app = Flask(__name__)
+app = Flask(
+    __name__,
+    static_folder="../static", 
+    static_url_path="/static"  
+)
 app.secret_key = "not_very_secret_key"  # hash this later
 
 #style css
@@ -126,6 +130,8 @@ def create_account():
         <input type="text" id="preferred_name" name="preferred_name"><br><br>
         
         <input type="submit" value="Submit">
+
+        <button type="button" onclick="window.location.href='/userhome'">Return to home</button>
     </form>
     """
 
@@ -599,9 +605,6 @@ def roulette_running():
     """
     return base_style + html
 
-
-# Slots route
-# Slated for a different sprint, placeholder endpoint
 # Slots route
 @app.route("/slots", methods=["GET", "POST"])
 def slots():
@@ -666,16 +669,6 @@ def slots():
     </form>
     <button type="button" onclick="window.location.href='/userhome'">Back to Home</button>
     """
-    return base_style + html
-
-
-@app.route("/slots/active")
-def play_slots(): 
-    image_path = "../data/lever.png"
-    html = f'''
-    <img src="{Image.open(image_path)}" alt="image not found">
-    <button type="button" onclick="window.location.href='/userhome'">Back to home</button>
-    '''
     return base_style + html
 
 @app.route("/logout")

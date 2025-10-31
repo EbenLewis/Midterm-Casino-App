@@ -7,7 +7,7 @@ from ..games.slot_machine import TextSlotMachine
 
 app = Flask(
     __name__,
-    static_folder="../static", 
+    static_folder="../../static", 
     static_url_path="/static"  
 )
 app.secret_key = "not_very_secret_key"  # hash this later
@@ -665,7 +665,9 @@ def slots():
     <form action="/slots" method="POST">
         <label for="bet">Bet amount:</label>
         <input type="number" id="bet" name="bet" step="0.01" min="0.01" max="{balance}" value="5.00" required><br><br>
-        <button type="submit">Spin!</button>
+        <button type="submit" style="border: none; background: none;">
+            <img src="/static/lever.png" width="150">
+        </button>
     </form>
     <button type="button" onclick="window.location.href='/userhome'">Back to Home</button>
     """

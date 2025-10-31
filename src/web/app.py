@@ -1,10 +1,15 @@
 from flask import Flask, request, redirect, url_for, session
+from PIL import Image 
 from ..user.user_manager import UserManager, User
 from ..games.blackjack import BlackjackGame
 from ..games.roulette import RouletteGame
 from ..games.slot_machine import TextSlotMachine
 
-app = Flask(__name__)
+app = Flask(
+    __name__,
+    static_folder="../../static", 
+    static_url_path="/static"  
+)
 app.secret_key = "not_very_secret_key"  # hash this later
 
 #style css
@@ -125,6 +130,8 @@ def create_account():
         <input type="text" id="preferred_name" name="preferred_name"><br><br>
         
         <input type="submit" value="Submit">
+
+        <button type="button" onclick="window.location.href='/userhome'">Return to home</button>
     </form>
     """
 
@@ -561,12 +568,13 @@ def roulette_running():
             user.update_money_lost(bet)
             result_text = f"You lose! Number: {winning_number} ({winning_color})"
 
-        return f"""
+        html = f"""
         <h1>Roulette Result</h1>
         <p>{result_text}</p>
         <button type="button" onclick="window.location.href='/roulette/active'">Play Again</button>
         <button type="button" onclick="window.location.href='/userhome'">Home</button>
         """
+        return html + base_style
 
     # Generate number options for dropdown
     number_options = ""
@@ -597,9 +605,6 @@ def roulette_running():
     """
     return base_style + html
 
-
-# Slots route
-# Slated for a different sprint, placeholder endpoint
 # Slots route
 @app.route("/slots", methods=["GET", "POST"])
 def slots():
@@ -660,12 +665,13 @@ def slots():
     <form action="/slots" method="POST">
         <label for="bet">Bet amount:</label>
         <input type="number" id="bet" name="bet" step="0.01" min="0.01" max="{balance}" value="5.00" required><br><br>
-        <button type="submit">Spin!</button>
+        <button type="submit" style="border: none; background: none;">
+            <img src="/static/lever.png" width="150">
+        </button>
     </form>
     <button type="button" onclick="window.location.href='/userhome'">Back to Home</button>
     """
     return base_style + html
-
 
 @app.route("/logout")
 def logout():
